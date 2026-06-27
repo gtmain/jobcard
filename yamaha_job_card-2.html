@@ -1,0 +1,1489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yamaha Job Card – Rai Mohan & Co.</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Bebas+Neue&display=swap');
+
+  :root {
+    --yamaha-blue: #003087;
+    --yamaha-red: #E60012;
+    --steel: #1a1f2e;
+    --silver: #8a9bb0;
+    --light: #f0f4f8;
+    --white: #ffffff;
+    --border: #d0dae6;
+    --ok-green: #16a34a;
+    --ng-red: #dc2626;
+    --input-bg: #f8fafc;
+    --accent: #0047CC;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #e8ecf2;
+    min-height: 100vh;
+    padding: 24px 16px;
+    color: var(--steel);
+  }
+
+  .page-wrapper {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  /* ── HEADER ── */
+  .card-header {
+    background: linear-gradient(135deg, var(--yamaha-blue) 0%, #001a5c 100%);
+    border-radius: 16px 16px 0 0;
+    padding: 28px 36px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 24px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+  }
+  .card-header::after {
+    content: '';
+    position: absolute;
+    right: -40px; top: -40px;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.04);
+  }
+
+  .brand-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .brand-logo svg { width: 120px; }
+  .logo-divider { width: 2px; height: 40px; background: rgba(255,255,255,0.3); }
+
+  .brand-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 2px;
+    color: white;
+    line-height: 1;
+  }
+  .brand-sub {
+    font-size: 10px;
+    color: rgba(255,255,255,0.7);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .job-card-title {
+    text-align: center;
+  }
+  .job-card-title h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 38px;
+    letter-spacing: 4px;
+    color: white;
+    line-height: 1;
+  }
+  .job-card-title .version {
+    font-size: 11px;
+    color: rgba(255,255,255,0.6);
+    letter-spacing: 2px;
+    margin-top: 4px;
+  }
+
+  .dealer-info {
+    text-align: right;
+    font-size: 11px;
+    color: rgba(255,255,255,0.85);
+    line-height: 1.7;
+  }
+  .dealer-info strong {
+    font-size: 14px;
+    color: white;
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  /* ── TOKEN & VEHICLE ROW ── */
+  .token-strip {
+    background: var(--yamaha-red);
+    padding: 10px 36px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+  .token-field {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .token-field input {
+    background: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.4);
+    border-radius: 6px;
+    padding: 5px 12px;
+    color: white;
+    font-weight: 700;
+    font-size: 15px;
+    width: 100px;
+    outline: none;
+    font-family: 'Inter', sans-serif;
+  }
+  .token-field input::placeholder { color: rgba(255,255,255,0.5); }
+
+  /* ── MAIN BODY ── */
+  .card-body {
+    background: white;
+    border-radius: 0 0 16px 16px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.12);
+    overflow: hidden;
+  }
+
+  /* Vehicle details bar */
+  .vehicle-bar {
+    background: var(--light);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 36px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+  .field-group { display: flex; flex-direction: column; gap: 4px; }
+  .field-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--silver);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .field-input {
+    border: 1.5px solid var(--border);
+    border-radius: 7px;
+    padding: 7px 11px;
+    font-size: 13px;
+    background: var(--white);
+    font-family: 'Inter', sans-serif;
+    color: var(--steel);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .field-input:focus { border-color: var(--accent); }
+
+  /* ── TWO COLUMN LAYOUT ── */
+  .main-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+  }
+
+  .left-col {
+    border-right: 1px solid var(--border);
+    padding: 24px 28px;
+  }
+  .right-col { padding: 24px 28px; }
+
+  /* ── SECTION HEADERS ── */
+  .section-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--yamaha-blue);
+    border-bottom: 2px solid var(--yamaha-blue);
+    padding-bottom: 6px;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title span { font-size: 14px; }
+
+  /* ── JOB TYPE ── */
+  .job-type-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .job-type-btn {
+    padding: 7px 14px;
+    border-radius: 20px;
+    border: 1.5px solid var(--border);
+    background: var(--input-bg);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    color: var(--steel);
+    transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
+  }
+  .job-type-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .job-type-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
+
+  /* ── OBSERVATION TABLE ── */
+  .obs-table { width: 100%; border-collapse: collapse; }
+  .obs-table thead th {
+    background: var(--yamaha-blue);
+    color: white;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 8px 10px;
+    text-align: left;
+  }
+  .obs-table tbody tr:nth-child(even) td { background: var(--input-bg); }
+  .obs-table td {
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+    vertical-align: middle;
+  }
+  .obs-table td input[type="text"] {
+    width: 100%;
+    border: none;
+    background: transparent;
+    font-size: 12px;
+    font-family: 'Inter', sans-serif;
+    color: var(--steel);
+    outline: none;
+  }
+  .obs-table td input[type="number"] {
+    width: 70px;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 3px 6px;
+    font-size: 12px;
+    font-family: 'Inter', sans-serif;
+    color: var(--steel);
+    outline: none;
+  }
+
+  /* ── ENGINE CHECK ── */
+  .engine-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .check-item {
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .check-item-label { font-size: 10px; font-weight: 600; color: var(--silver); text-transform: uppercase; letter-spacing: 0.8px; }
+  .check-item select {
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 4px 7px;
+    font-size: 12px;
+    font-family: 'Inter', sans-serif;
+    color: var(--steel);
+    background: white;
+    outline: none;
+  }
+  .check-item input[type="text"] {
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 4px 7px;
+    font-size: 12px;
+    font-family: 'Inter', sans-serif;
+    color: var(--steel);
+    background: white;
+    outline: none;
+    width: 100%;
+  }
+
+  /* ── ELECTRICAL ── */
+  .electrical-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .elec-item {
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.2s;
+  }
+  .elec-item:hover { border-color: var(--ok-green); }
+  .elec-item.ok { background: #dcfce7; border-color: var(--ok-green); }
+  .elec-item.ng { background: #fee2e2; border-color: var(--ng-red); }
+  .elec-label { font-size: 11px; font-weight: 500; }
+  .yn-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 10px;
+    background: white;
+    color: var(--silver);
+    border: 1px solid var(--border);
+    transition: all 0.2s;
+  }
+  .elec-item.ok .yn-badge { background: var(--ok-green); color: white; border-color: var(--ok-green); }
+  .elec-item.ng .yn-badge { background: var(--ng-red); color: white; border-color: var(--ng-red); }
+
+  /* ── CHASSIS ── */
+  .chassis-list { list-style: none; }
+  .chassis-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px dashed var(--border);
+    font-size: 12px;
+  }
+  .chassis-item:last-child { border: none; }
+  .chassis-label { font-weight: 500; flex: 1; }
+  .yn-toggle {
+    display: flex;
+    gap: 5px;
+  }
+  .yn-btn {
+    padding: 3px 10px;
+    border-radius: 12px;
+    border: 1.5px solid var(--border);
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    background: white;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.15s;
+  }
+  .yn-btn.yes.active { background: var(--ok-green); border-color: var(--ok-green); color: white; }
+  .yn-btn.no.active { background: var(--ng-red); border-color: var(--ng-red); color: white; }
+
+  /* ── MAINTENANCE TABLE ── */
+  .maint-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+  .maint-table thead th {
+    background: var(--steel);
+    color: white;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 8px 10px;
+    text-align: left;
+  }
+  .maint-table tbody tr:hover td { background: #f0f4ff; }
+  .maint-table td {
+    padding: 7px 10px;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+  }
+  .maint-table td:last-child { text-align: center; }
+  .maint-table td input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: var(--accent);
+  }
+
+  /* ── COST SECTION ── */
+  .cost-section {
+    padding: 20px 28px;
+    border-top: 2px solid var(--border);
+    background: var(--light);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .cost-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .cost-label { font-size: 12px; font-weight: 500; }
+  .cost-input {
+    border: 1.5px solid var(--border);
+    border-radius: 7px;
+    padding: 6px 10px;
+    font-size: 13px;
+    font-weight: 600;
+    width: 120px;
+    text-align: right;
+    font-family: 'Inter', sans-serif;
+    color: var(--steel);
+    outline: none;
+    background: white;
+  }
+  .cost-input:focus { border-color: var(--accent); }
+  .total-row {
+    background: var(--yamaha-blue);
+    border-radius: 10px;
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+    color: white;
+  }
+  .total-row span { font-size: 13px; font-weight: 600; letter-spacing: 0.5px; }
+  .total-row strong { font-size: 18px; font-family: 'Bebas Neue', sans-serif; letter-spacing: 1px; }
+
+  /* ── CUSTOMER DETAILS ── */
+  .customer-section {
+    padding: 20px 28px;
+    border-top: 2px solid var(--border);
+  }
+  .customer-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-top: 12px;
+  }
+  .customer-grid .span2 { grid-column: span 2; }
+
+  /* ── AUTHORIZATION ── */
+  .auth-section {
+    padding: 20px 28px;
+    border-top: 2px solid var(--border);
+    background: #fffbe6;
+    border-radius: 0 0 16px 16px;
+  }
+  .auth-text {
+    font-size: 11px;
+    color: #7a6500;
+    line-height: 1.7;
+    margin-bottom: 16px;
+  }
+  .auth-text strong { color: #5a4800; }
+  .signature-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+    margin-top: 16px;
+  }
+  .sig-box {
+    border-top: 2px solid var(--steel);
+    padding-top: 8px;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--silver);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* ── ACTION BUTTONS ── */
+  .action-bar {
+    padding: 20px 28px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    background: white;
+  }
+  .btn {
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+  }
+  .btn-outline {
+    border: 2px solid var(--border);
+    background: white;
+    color: var(--steel);
+  }
+  .btn-outline:hover { border-color: var(--steel); }
+  .btn-primary {
+    background: var(--yamaha-blue);
+    border: 2px solid var(--yamaha-blue);
+    color: white;
+  }
+  .btn-primary:hover { background: #001a5c; }
+  .btn-danger {
+    background: var(--yamaha-red);
+    border: 2px solid var(--yamaha-red);
+    color: white;
+  }
+  .btn-danger:hover { background: #b0000e; }
+  .btn-success {
+    background: var(--ok-green);
+    border: 2px solid var(--ok-green);
+    color: white;
+  }
+
+  /* ── TEXTAREA ── */
+  .field-textarea {
+    width: 100%;
+    border: 1.5px solid var(--border);
+    border-radius: 7px;
+    padding: 8px 11px;
+    font-size: 12px;
+    font-family: 'Inter', sans-serif;
+    color: var(--steel);
+    resize: vertical;
+    min-height: 70px;
+    outline: none;
+  }
+  .field-textarea:focus { border-color: var(--accent); }
+
+  .mb-16 { margin-bottom: 16px; }
+  .mb-8 { margin-bottom: 8px; }
+
+  /* ── DIGITAL SIGNATURE ── */
+  .sig-panels {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-top: 20px;
+  }
+  .sig-panel {
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .sig-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: var(--yamaha-blue);
+  }
+  .sig-panel-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: white;
+    letter-spacing: 0.5px;
+  }
+  .sig-actions { display: flex; gap: 6px; }
+  .sig-btn {
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+  }
+  .sig-clear { background: rgba(255,255,255,0.2); color: white; }
+  .sig-clear:hover { background: var(--yamaha-red); }
+  .sig-save { background: white; color: var(--yamaha-blue); }
+  .sig-save:hover { background: #e8f0ff; }
+  .sig-canvas-wrap {
+    position: relative;
+    background: #fafbff;
+    border-bottom: 1px solid var(--border);
+  }
+  .sig-canvas {
+    display: block;
+    width: 100%;
+    height: 160px;
+    cursor: crosshair;
+    touch-action: none;
+  }
+  .sig-placeholder {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 14px;
+    color: #c0cad8;
+    pointer-events: none;
+    font-style: italic;
+    transition: opacity 0.2s;
+  }
+  .sig-meta {
+    padding: 7px 14px;
+    font-size: 10px;
+    color: var(--silver);
+    min-height: 28px;
+    font-style: italic;
+  }
+  /* ── RESPONSIVE: TABLET (≤900px) ── */
+  @media (max-width: 900px) {
+    .card-header { padding: 20px 20px; gap: 16px; }
+    .vehicle-bar { padding: 12px 20px; }
+    .left-col, .right-col { padding: 18px 20px; }
+    .cost-section { padding: 18px 20px; }
+    .customer-section { padding: 18px 20px; }
+    .auth-section { padding: 18px 20px; }
+    .action-bar { padding: 14px 20px; }
+    .electrical-grid { grid-template-columns: repeat(2, 1fr); }
+    .signature-row { grid-template-columns: 1fr 1fr; gap: 14px; }
+  }
+
+  /* ── RESPONSIVE: MOBILE (≤768px) ── */
+  @media (max-width: 768px) {
+    body { padding: 0; }
+
+    .page-wrapper { max-width: 100%; }
+
+    /* Header stacks vertically */
+    .card-header {
+      grid-template-columns: 1fr;
+      text-align: center;
+      padding: 18px 16px;
+      gap: 12px;
+      border-radius: 0;
+    }
+    .brand-logo { justify-content: center; }
+    .dealer-info { text-align: center; }
+    .card-body { border-radius: 0; }
+
+    /* Token strip wraps */
+    .token-strip {
+      flex-wrap: wrap;
+      gap: 12px;
+      padding: 10px 16px;
+    }
+    .token-field { font-size: 12px; }
+    .token-field input[type="text"] { width: 80px; }
+
+    /* Vehicle bar: 2 cols on tablet, 1 col on small mobile */
+    .vehicle-bar {
+      grid-template-columns: 1fr 1fr;
+      padding: 12px 16px;
+      gap: 12px;
+    }
+
+    /* Job type strip */
+    .job-type-grid { gap: 6px; }
+    .job-type-btn { font-size: 11px; padding: 6px 10px; }
+    div[style*="padding:16px 28px 0"] { padding: 14px 16px 0 !important; }
+
+    /* Two-column → single column */
+    .main-columns { grid-template-columns: 1fr; }
+    .left-col {
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+      padding: 16px 16px;
+    }
+    .right-col { padding: 16px 16px; }
+
+    /* Engine row: always 1-col on small screens */
+    .engine-row { grid-template-columns: 1fr; }
+
+    /* Electrical grid: 2 cols */
+    .electrical-grid { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+    .elec-label { font-size: 10px; }
+
+    /* Cost section: single column */
+    .cost-section {
+      grid-template-columns: 1fr;
+      gap: 16px;
+      padding: 16px 16px;
+    }
+
+    /* Customer grid: 1 col */
+    .customer-grid { grid-template-columns: 1fr; }
+    .customer-grid .span2 { grid-column: span 1; }
+    .customer-section { padding: 16px 16px; }
+
+    /* Signature panels: stack */
+    .sig-panels { grid-template-columns: 1fr; gap: 16px; }
+    .sig-canvas { height: 130px; }
+
+    /* Signature row */
+    .signature-row { grid-template-columns: 1fr; gap: 14px; }
+
+    /* Auth section */
+    .auth-section { padding: 16px 16px; border-radius: 0; }
+    .auth-text { font-size: 11px; }
+
+    /* Action bar: wraps & full width buttons */
+    .action-bar {
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 12px 16px;
+      justify-content: stretch;
+    }
+    .action-bar .btn { flex: 1 1 calc(50% - 8px); text-align: center; font-size: 12px; padding: 9px 10px; }
+
+    /* Obs table number inputs wider */
+    .obs-table td input[type="number"] { width: 60px; }
+
+    /* Chassis items */
+    .chassis-label { font-size: 11px; }
+
+    /* Toast bottom on mobile */
+    #toast { bottom: 16px; right: 16px; left: 16px; max-width: unset; font-size: 12px; }
+
+    /* Section padding fixes for inline styles */
+    div[style*="padding:20px 28px"] { padding: 14px 16px !important; }
+    div[style*="padding: 20px 28px"] { padding: 14px 16px !important; }
+  }
+
+  /* ── RESPONSIVE: SMALL MOBILE (≤480px) ── */
+  @media (max-width: 480px) {
+    .vehicle-bar { grid-template-columns: 1fr; }
+    .card-header { padding: 14px 12px; }
+    .brand-name { font-size: 22px; }
+    .job-card-title h1 { font-size: 28px; }
+    .dealer-info strong { font-size: 13px; }
+    .dealer-info { font-size: 10px; }
+
+    .token-strip { padding: 8px 12px; gap: 8px; }
+    .token-field input[type="text"] { width: 70px; font-size: 13px; }
+
+    .electrical-grid { grid-template-columns: 1fr 1fr; gap: 5px; }
+    .elec-item { padding: 6px 7px; }
+
+    /* Obs table: tighter on very small screens */
+    .obs-table thead th { font-size: 9px; padding: 6px 6px; }
+    .obs-table td { padding: 4px 5px; font-size: 11px; }
+    .obs-table td input[type="number"] { width: 52px; font-size: 11px; }
+
+    .action-bar .btn { flex: 1 1 100%; }
+
+    .maint-table thead th { font-size: 9px; padding: 6px; }
+    .maint-table td { padding: 5px 6px; font-size: 11px; }
+
+    .total-row strong { font-size: 16px; }
+    .cost-input { width: 100px; }
+  }
+
+  /* ── PRINT ── */
+  @media print {
+    body { background: white; padding: 0; }
+    .action-bar { display: none !important; }
+    .card-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; border-radius: 0; }
+    .token-strip { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .elec-item.ok { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .elec-item.ng { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .job-type-btn.active { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .total-row { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .yn-btn.yes.active, .yn-btn.no.active { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    #toast { display: none !important; }
+    .page-wrapper { max-width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-wrapper">
+  <!-- HEADER -->
+  <div class="card-header">
+    <div class="brand-logo">
+      <!-- Yamaha logo SVG -->
+      <svg viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <text x="0" y="46" font-family="Arial Black, sans-serif" font-size="48" font-weight="900" fill="white" letter-spacing="-1">YAMAHA</text>
+      </svg>
+    </div>
+    <div class="job-card-title">
+      <h1>JOB CARD</h1>
+      <div class="version">Ver. 2.1 &nbsp;•&nbsp; Authorized Service Center</div>
+    </div>
+    <div class="dealer-info">
+      <strong>RAI MOHAN &amp; CO.</strong>
+      Authorised Dealer – Yamaha Motor India Sales Pvt. Ltd.<br>
+      Rabindrapally (Near Susporsho Hospital)<br>
+      Gangarampur – 733 124<br>
+      Sales: 9083622112 &nbsp;|&nbsp; Service: 7029294798
+    </div>
+  </div>
+
+  <!-- TOKEN STRIP -->
+  <div class="token-strip">
+    <div class="token-field">
+      Token No.
+      <input type="text" id="tokenNo" placeholder="423" maxlength="10">
+    </div>
+    <div class="token-field" style="margin-left:auto;">
+      Date / Time
+      <input type="datetime-local" id="receiveDate" style="background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);border-radius:6px;padding:5px 10px;color:white;font-family:Inter,sans-serif;font-size:12px;outline:none;">
+    </div>
+  </div>
+
+  <div class="card-body">
+    <!-- VEHICLE BAR -->
+    <div class="vehicle-bar">
+      <div class="field-group">
+        <span class="field-label">Vehicle Model</span>
+        <input class="field-input" id="vehicleModel" type="text" placeholder="e.g. FZ-S FI V3">
+      </div>
+      <div class="field-group">
+        <span class="field-label">Registration No.</span>
+        <input class="field-input" id="regNo" type="text" placeholder="WB 00 AA 0000">
+      </div>
+      <div class="field-group">
+        <span class="field-label">Odometer Reading (km)</span>
+        <input class="field-input" id="odometer" type="number" placeholder="12500">
+      </div>
+      <div class="field-group">
+        <span class="field-label">Ready for Delivery</span>
+        <input class="field-input" id="deliveryTime" type="datetime-local">
+      </div>
+    </div>
+
+    <!-- JOB TYPE -->
+    <div style="padding:16px 28px 0; border-bottom:1px solid var(--border);">
+      <div class="section-title"><span>🔧</span> Type of Job</div>
+      <div class="job-type-grid" id="jobTypeGroup">
+        <button class="job-type-btn" onclick="toggleJob(this)">Free Service 1</button>
+        <button class="job-type-btn" onclick="toggleJob(this)">Free Service 2</button>
+        <button class="job-type-btn" onclick="toggleJob(this)">Free Service 3</button>
+        <button class="job-type-btn" onclick="toggleJob(this)">Free Service 4</button>
+        <button class="job-type-btn" onclick="toggleJob(this)">Free Service 5</button>
+        <button class="job-type-btn" onclick="toggleJob(this)">Free Service 6</button>
+        <button class="job-type-btn" onclick="toggleJob(this)">Bonus Service</button>
+        <button class="job-type-btn" onclick="toggleJob(this)">Paid Service</button>
+        <button class="job-type-btn" onclick="toggleJob(this)">Accidental</button>
+        <button class="job-type-btn" onclick="toggleJob(this)">Quick / Minor Repair</button>
+        <button class="job-type-btn" onclick="toggleJob(this)">RS4GP</button>
+        <button class="job-type-btn" onclick="toggleJob(this)">Sporty Premium</button>
+        <button class="job-type-btn" onclick="toggleJob(this)">Others</button>
+      </div>
+      <div style="margin-bottom:14px;display:flex;align-items:center;gap:10px;">
+        <input type="checkbox" id="telephonic" style="accent-color:var(--accent);width:16px;height:16px;">
+        <label for="telephonic" style="font-size:12px;font-weight:500;cursor:pointer;">Customer Received Telephonic Service Reminder</label>
+      </div>
+    </div>
+
+    <!-- MAIN TWO COLUMN -->
+    <div class="main-columns">
+      <!-- LEFT -->
+      <div class="left-col">
+        <!-- Customer Demanded Repair -->
+        <div class="section-title mb-8"><span>📋</span> Customer Demanded Repair / Observation</div>
+        <table class="obs-table mb-16">
+          <thead>
+            <tr>
+              <th style="width:50%;">Observation / Complaint</th>
+              <th>Parts (₹)</th>
+              <th>Labour (₹)</th>
+            </tr>
+          </thead>
+          <tbody id="obsBody">
+            <tr>
+              <td><input type="text" placeholder="Describe complaint…"></td>
+              <td><input type="number" placeholder="0"></td>
+              <td><input type="number" placeholder="0"></td>
+            </tr>
+            <tr>
+              <td><input type="text" placeholder="Describe complaint…"></td>
+              <td><input type="number" placeholder="0"></td>
+              <td><input type="number" placeholder="0"></td>
+            </tr>
+            <tr>
+              <td><input type="text" placeholder="Describe complaint…"></td>
+              <td><input type="number" placeholder="0"></td>
+              <td><input type="number" placeholder="0"></td>
+            </tr>
+          </tbody>
+        </table>
+        <button class="btn btn-outline" style="font-size:12px;padding:6px 14px;margin-bottom:18px;" onclick="addObsRow()">+ Add Row</button>
+
+        <!-- Supervisor's Observation -->
+        <div class="section-title mb-8"><span>👁</span> Supervisor's Observation</div>
+        <textarea class="field-textarea mb-16" id="supervisorObs" placeholder="Enter supervisor's remarks…"></textarea>
+
+        <!-- Technician Info -->
+        <div class="section-title mb-8"><span>👤</span> Assigned To</div>
+        <div class="engine-row mb-16">
+          <div class="field-group">
+            <span class="field-label">Bay No.</span>
+            <input class="field-input" id="bayNo" type="text" placeholder="Bay 3">
+          </div>
+          <div class="field-group">
+            <span class="field-label">Technician Name</span>
+            <input class="field-input" id="technicianName" type="text" placeholder="Name">
+          </div>
+        </div>
+        <div class="field-group mb-16">
+          <span class="field-label">Mechanic Name</span>
+          <input class="field-input" id="mechanicName" type="text" placeholder="Name">
+        </div>
+
+        <!-- Recommended Maintenance -->
+        <div class="section-title mb-8"><span>🗓</span> Recommended Periodic Maintenance</div>
+        <table class="maint-table">
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>Schedule</th>
+              <th>Done</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Engine Oil + Oil Filter (if applicable)</td><td>As per model schedule</td><td><input type="checkbox"></td></tr>
+            <tr><td>Spark Plug</td><td>As per model schedule</td><td><input type="checkbox"></td></tr>
+            <tr><td>Brake Shoe / Brake Pad (if applicable)</td><td>Refer Wear Indicator</td><td><input type="checkbox"></td></tr>
+            <tr><td>Drive Chain (if applicable)</td><td>Refer Elongation Indicator</td><td><input type="checkbox"></td></tr>
+            <tr><td>Fork Oil</td><td>Every 12,000 kms</td><td><input type="checkbox"></td></tr>
+            <tr><td>Gear Oil (if applicable)</td><td>Every 12,000 kms</td><td><input type="checkbox"></td></tr>
+            <tr><td>Brake Fluid (if applicable)</td><td>Every 2 Years</td><td><input type="checkbox"></td></tr>
+            <tr><td>Coolant (if applicable)</td><td>Every 2 Years</td><td><input type="checkbox"></td></tr>
+            <tr><td>Air Filter</td><td>As per model schedule</td><td><input type="checkbox"></td></tr>
+            <tr><td>CVT Belt (if applicable)</td><td>Every 24,000 kms</td><td><input type="checkbox"></td></tr>
+            <tr><td>Injector Cleaning (if applicable)</td><td>Every 6,000 kms</td><td><input type="checkbox"></td></tr>
+            <tr><td>Driving Chain Cleaning (if applicable)</td><td>As per model schedule</td><td><input type="checkbox"></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- RIGHT -->
+      <div class="right-col">
+        <!-- Engine Pre-Service Check -->
+        <div class="section-title mb-8"><span>⚙️</span> Engine – Pre Service Check</div>
+        <div class="engine-row mb-8">
+          <div class="check-item">
+            <span class="check-item-label">Idle RPM</span>
+            <select>
+              <option value="">– Select –</option>
+              <option>OK (&lt; 1250)</option>
+              <option>NG (&gt; 1250)</option>
+            </select>
+          </div>
+          <div class="check-item">
+            <span class="check-item-label">Engine Oil Level</span>
+            <select>
+              <option value="">– Select –</option>
+              <option>OK</option>
+              <option>High</option>
+              <option>Low</option>
+            </select>
+          </div>
+        </div>
+        <div class="engine-row mb-8">
+          <div class="check-item">
+            <span class="check-item-label">Oil / Coolant Leakage</span>
+            <select>
+              <option value="">– Select –</option>
+              <option>No Leakage</option>
+              <option>Leakage – Specify Area</option>
+            </select>
+          </div>
+          <div class="check-item">
+            <span class="check-item-label">Abnormal Engine Noise</span>
+            <input type="text" placeholder="Type of noise / OK">
+          </div>
+        </div>
+
+        <!-- Electrical -->
+        <div class="section-title mb-8" style="margin-top:18px;"><span>⚡</span> Electrical Check</div>
+        <div class="electrical-grid mb-16">
+          <div class="elec-item" onclick="toggleElec(this)" data-label="Head Light"><span class="elec-label">Head Light</span><span class="yn-badge">–</span></div>
+          <div class="elec-item" onclick="toggleElec(this)" data-label="Tail Light"><span class="elec-label">Tail Light</span><span class="yn-badge">–</span></div>
+          <div class="elec-item" onclick="toggleElec(this)" data-label="Brake Light"><span class="elec-label">Brake Light</span><span class="yn-badge">–</span></div>
+          <div class="elec-item" onclick="toggleElec(this)" data-label="Fr. Indicator"><span class="elec-label">Fr. Indicator</span><span class="yn-badge">–</span></div>
+          <div class="elec-item" onclick="toggleElec(this)" data-label="Rr. Indicator"><span class="elec-label">Rr. Indicator</span><span class="yn-badge">–</span></div>
+          <div class="elec-item" onclick="toggleElec(this)" data-label="Engine Warning"><span class="elec-label">Engine Warning</span><span class="yn-badge">–</span></div>
+          <div class="elec-item" onclick="toggleElec(this)" data-label="Horn"><span class="elec-label">Horn</span><span class="yn-badge">–</span></div>
+          <div class="elec-item" onclick="toggleElec(this)" data-label="Instrument Light"><span class="elec-label">Instrument Light</span><span class="yn-badge">–</span></div>
+          <div class="elec-item" onclick="toggleElec(this)" data-label="Battery Func."><span class="elec-label">Battery Func.</span><span class="yn-badge">–</span></div>
+        </div>
+
+        <!-- Chassis -->
+        <div class="section-title mb-8"><span>🏍</span> Chassis Check (Y = Yes, N = No)</div>
+        <ul class="chassis-list mb-16" id="chassisList">
+        </ul>
+
+        <!-- Vehicle Return Condition -->
+        <div class="section-title mb-8"><span>🔍</span> Vehicle Return Condition</div>
+        <div class="vehicle-return-checks" style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:16px;">
+          <label style="font-size:12px;display:flex;align-items:center;gap:6px;cursor:pointer;">
+            <input type="checkbox" style="accent-color:var(--accent);"> Owner Tool
+          </label>
+          <label style="font-size:12px;display:flex;align-items:center;gap:6px;cursor:pointer;">
+            <input type="checkbox" style="accent-color:var(--accent);"> First Aid Kit
+          </label>
+          <label style="font-size:12px;display:flex;align-items:center;gap:6px;cursor:pointer;">
+            <input type="checkbox" style="accent-color:var(--accent);"> Service Record / Warranty Book
+          </label>
+        </div>
+        <div class="check-item mb-16" style="grid-column:span 2;">
+          <span class="check-item-label">Fuel Level (approx.)</span>
+          <input type="range" min="0" max="100" value="50" id="fuelSlider" oninput="document.getElementById('fuelVal').innerText=this.value+'%'" style="accent-color:var(--accent);width:100%;">
+          <span id="fuelVal" style="font-size:12px;color:var(--steel);font-weight:600;">50%</span>
+        </div>
+
+        <!-- Body Damage -->
+        <div class="section-title mb-8"><span>🛵</span> Body Damage Check</div>
+        <div style="display:flex;gap:20px;margin-bottom:8px;flex-wrap:wrap;">
+          <span style="font-size:11px;"><strong>D</strong> – Dent</span>
+          <span style="font-size:11px;"><strong>S</strong> – Scratch</span>
+          <span style="font-size:11px;"><strong>B</strong> – Broken</span>
+          <span style="font-size:11px;"><strong>M</strong> – Missing</span>
+        </div>
+        <textarea class="field-textarea body-damage-notes" placeholder="Note any body damage (e.g. Scratch on RHS fairing, Dent on tank…)" style="min-height:55px;"></textarea>
+      </div>
+    </div>
+
+    <!-- COST SECTION -->
+    <div class="cost-section">
+      <div>
+        <div class="section-title mb-8"><span>💰</span> Estimated Cost</div>
+        <div class="cost-row">
+          <span class="cost-label">Estimated Parts Cost (₹)</span>
+          <input class="cost-input" type="number" id="partsCost" placeholder="0" oninput="calcTotal()">
+        </div>
+        <div class="cost-row">
+          <span class="cost-label">Estimated Labour Cost (₹)</span>
+          <input class="cost-input" type="number" id="labourCost" placeholder="0" oninput="calcTotal()">
+        </div>
+        <div class="total-row">
+          <span>Total Estimated Cost</span>
+          <strong id="totalCost">₹ 0</strong>
+        </div>
+      </div>
+      <div>
+        <div class="section-title mb-8"><span>📝</span> Additional Notes</div>
+        <textarea class="field-textarea" id="additionalNotes" style="min-height:100px;" placeholder="Any special instructions or notes for the technician…"></textarea>
+        <div style="margin-top:12px;display:flex;align-items:center;gap:8px;">
+          <input type="checkbox" style="accent-color:var(--accent);width:16px;height:16px;" id="oldParts">
+          <label for="oldParts" style="font-size:12px;cursor:pointer;">Old parts to be returned to customer</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- CUSTOMER DETAILS -->
+    <div class="customer-section">
+      <div class="section-title"><span>👤</span> Customer Details</div>
+      <div class="customer-grid">
+        <div class="field-group span2">
+          <span class="field-label">Full Name</span>
+          <input class="field-input" id="custName" type="text" placeholder="Customer Name">
+        </div>
+        <div class="field-group">
+          <span class="field-label">Mobile No.</span>
+          <input class="field-input" id="custMobile" type="tel" placeholder="9XXXXXXXXX">
+        </div>
+        <div class="field-group">
+          <span class="field-label">Alternate No.</span>
+          <input class="field-input" id="custAltMobile" type="tel" placeholder="9XXXXXXXXX">
+        </div>
+        <div class="field-group">
+          <span class="field-label">Frame No.</span>
+          <input class="field-input" id="frameNo" type="text" placeholder="Frame Number">
+        </div>
+        <div class="field-group span2">
+          <span class="field-label">Address</span>
+          <input class="field-input" id="custAddress" type="text" placeholder="Full Address">
+        </div>
+        <div class="field-group">
+          <span class="field-label">Engine No.</span>
+          <input class="field-input" id="engineNo" type="text" placeholder="Engine Number">
+        </div>
+        <div class="field-group">
+          <span class="field-label">Date of Sale</span>
+          <input class="field-input" id="dateOfSale" type="date">
+        </div>
+        <div class="field-group">
+          <span class="field-label">Repair Job Start</span>
+          <input class="field-input" id="repairStart" type="datetime-local">
+        </div>
+        <div class="field-group">
+          <span class="field-label">Ready for Delivery</span>
+          <input class="field-input" id="readyDelivery" type="datetime-local">
+        </div>
+      </div>
+    </div>
+
+    <!-- AUTHORIZATION -->
+    <div class="auth-section">
+      <div class="section-title"><span>✅</span> Customer Authorization</div>
+      <p class="auth-text">
+        I hereby Authorize the above jobs to be done &amp; if parts required it will be at my cost. Any additional job or parts required shall be at my cost. Vehicle stored, repaired, tested &amp; driven at my risk. We shall not hold the service shop responsible for any loss or damages that may occur during storage, service or trails due to accidents, riots, fire, flood or any such happening due to reasons beyond their control.<br><br>
+        <strong>Estimate given for the labour charges &amp; parts is only approximate. Actual bill amount may vary +/- 10%.</strong><br>
+        If the vehicle is not collected within 90 (ninety) days from the date of delivery to us, we shall be free to dispose of / sell the vehicle to any third party and in this regard, you specifically acknowledge that you shall have no claim against us.
+      </p>
+      <div class="sig-panels">
+
+        <!-- Supervisor Signature -->
+        <div class="sig-panel">
+          <div class="sig-panel-header">
+            <span class="sig-panel-title">✍️ Supervisor's Signature</span>
+            <div class="sig-actions">
+              <button class="sig-btn sig-clear" onclick="clearSig('supervisor')">Clear</button>
+              <button class="sig-btn sig-save" onclick="saveSig('supervisor')">Save PNG</button>
+            </div>
+          </div>
+          <div class="sig-canvas-wrap" id="supervisor-wrap">
+            <canvas id="supervisor-canvas" class="sig-canvas" width="420" height="160"></canvas>
+            <div class="sig-placeholder" id="supervisor-placeholder">Sign here…</div>
+          </div>
+          <div class="sig-meta" id="supervisor-meta"></div>
+        </div>
+
+        <!-- Customer Signature -->
+        <div class="sig-panel">
+          <div class="sig-panel-header">
+            <span class="sig-panel-title">✍️ Customer's Signature</span>
+            <div class="sig-actions">
+              <button class="sig-btn sig-clear" onclick="clearSig('customer')">Clear</button>
+              <button class="sig-btn sig-save" onclick="saveSig('customer')">Save PNG</button>
+            </div>
+          </div>
+          <div class="sig-canvas-wrap" id="customer-wrap">
+            <canvas id="customer-canvas" class="sig-canvas" width="420" height="160"></canvas>
+            <div class="sig-placeholder" id="customer-placeholder">Sign here…</div>
+          </div>
+          <div class="sig-meta" id="customer-meta"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ACTION BAR -->
+    <div class="action-bar">
+      <button class="btn btn-outline" onclick="clearForm()">🗑 Clear Form</button>
+      <button class="btn btn-outline" onclick="window.print()">🖨 Print</button>
+      <button class="btn btn-primary" id="saveDraftBtn" onclick="saveDraft()">💾 Save Draft</button>
+      <button class="btn btn-success" id="finaliseBtn" onclick="finaliseCard()">✅ Finalise Job Card</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast" style="
+  position:fixed;bottom:28px;right:28px;z-index:9999;
+  background:#1a1f2e;color:white;
+  padding:14px 22px;border-radius:12px;
+  font-size:13px;font-weight:600;font-family:Inter,sans-serif;
+  box-shadow:0 8px 32px rgba(0,0,0,0.25);
+  transform:translateY(80px);opacity:0;
+  transition:all 0.35s cubic-bezier(.4,0,.2,1);
+  max-width:340px;display:flex;align-items:center;gap:10px;
+"></div>
+
+<script>
+  // ── SUPABASE INIT ──
+  const SUPA_URL  = 'https://mudzlrxlltoailcmvafs.supabase.co';
+  const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im11ZHpscnhsbHRvYWlsY212YWZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0NjA0NjIsImV4cCI6MjA5ODAzNjQ2Mn0.lDqxahxVe5wx6l98baD6qxXZtqg-ZthLfs1aD3pkdgE';
+  const { createClient } = supabase;
+  const db = createClient(SUPA_URL, SUPA_ANON);
+
+  // ── TOAST ──
+  let toastTimer;
+  function showToast(msg, type = 'success') {
+    const t = document.getElementById('toast');
+    const icons = { success: '✅', error: '❌', info: 'ℹ️', loading: '⏳' };
+    const colors = { success: '#16a34a', error: '#dc2626', info: '#003087', loading: '#f59e0b' };
+    t.style.background = colors[type] || '#1a1f2e';
+    t.innerHTML = `<span style="font-size:16px">${icons[type]||'ℹ️'}</span> ${msg}`;
+    t.style.transform = 'translateY(0)';
+    t.style.opacity = '1';
+    clearTimeout(toastTimer);
+    if (type !== 'loading') {
+      toastTimer = setTimeout(() => { t.style.transform = 'translateY(80px)'; t.style.opacity = '0'; }, 3500);
+    }
+  }
+
+  // ── SET CURRENT DATETIME ──
+  const now = new Date();
+  const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+  document.getElementById('receiveDate').value = local;
+
+  // ── JOB TYPE TOGGLE ──
+  function toggleJob(btn) { btn.classList.toggle('active'); }
+
+  // ── ADD OBSERVATION ROW ──
+  function addObsRow() {
+    const tbody = document.getElementById('obsBody');
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input type="text" placeholder="Describe complaint…"></td>
+      <td><input type="number" placeholder="0"></td>
+      <td><input type="number" placeholder="0"></td>
+    `;
+    tbody.appendChild(tr);
+  }
+
+  // ── ELECTRICAL TOGGLE ──
+  function toggleElec(el) {
+    const badge = el.querySelector('.yn-badge');
+    if (!el.classList.contains('ok') && !el.classList.contains('ng')) {
+      el.classList.add('ok'); badge.textContent = 'OK';
+    } else if (el.classList.contains('ok')) {
+      el.classList.remove('ok'); el.classList.add('ng'); badge.textContent = 'NG';
+    } else {
+      el.classList.remove('ng'); badge.textContent = '–';
+    }
+  }
+
+  // ── CHASSIS ──
+  const chassisItems = [
+    'Front Wheel – Rim Runout','Front Wheel – Brake Wear','Brake Fluid Level',
+    'Brake Fluid Leakage','Front Fork – Oil Leakage','Front Fork – Smooth Rebound',
+    'Steering – Bearing Play','Steering – Lock to Lock','Drive Chain – Chain Wear',
+    'Drive Chain – Sprocket Teeth Wear','Rear Suspension – Oil Leakage',
+    'Rear Suspension – Smooth Rebound','Rear Wheel – Rim Runout',
+    'Rear Wheel – Brake Wear','Control Cable – Smooth Operation',
+  ];
+  const chassisList = document.getElementById('chassisList');
+  chassisItems.forEach((label, i) => {
+    const li = document.createElement('li');
+    li.className = 'chassis-item';
+    li.innerHTML = `
+      <span class="chassis-label">${label}</span>
+      <div class="yn-toggle">
+        <button class="yn-btn yes" onclick="toggleYN(this,'yes',${i})">Y</button>
+        <button class="yn-btn no"  onclick="toggleYN(this,'no',${i})">N</button>
+      </div>`;
+    chassisList.appendChild(li);
+  });
+  function toggleYN(btn) {
+    btn.closest('.yn-toggle').querySelectorAll('.yn-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  // ── COST CALC ──
+  function calcTotal() {
+    const p = parseFloat(document.getElementById('partsCost').value) || 0;
+    const l = parseFloat(document.getElementById('labourCost').value) || 0;
+    document.getElementById('totalCost').textContent = '₹ ' + (p + l).toLocaleString('en-IN');
+  }
+
+  // ── COLLECT ALL FORM DATA ──
+  function collectFormData(status = 'draft') {
+    // Job types
+    const jobTypes = [...document.querySelectorAll('.job-type-btn.active')].map(b => b.textContent.trim());
+
+    // Observations
+    const observations = [];
+    document.querySelectorAll('#obsBody tr').forEach(tr => {
+      const inputs = tr.querySelectorAll('input');
+      const obs = inputs[0].value.trim();
+      if (obs) observations.push({ observation: obs, parts_cost: parseFloat(inputs[1].value)||0, labour_cost: parseFloat(inputs[2].value)||0 });
+    });
+
+    // Electrical
+    const electrical = {};
+    document.querySelectorAll('.elec-item').forEach(el => {
+      const lbl = el.dataset.label;
+      const badge = el.querySelector('.yn-badge').textContent;
+      electrical[lbl] = badge === '–' ? null : badge;
+    });
+
+    // Chassis
+    const chassis = {};
+    chassisItems.forEach((label, i) => {
+      const row = chassisList.children[i];
+      const active = row.querySelector('.yn-btn.active');
+      chassis[label] = active ? active.textContent : null;
+    });
+
+    // Maintenance checkboxes
+    const maintenance = [];
+    document.querySelectorAll('.maint-table tbody tr').forEach(tr => {
+      const item = tr.cells[0].textContent.trim();
+      const done = tr.querySelector('input[type=checkbox]').checked;
+      maintenance.push({ item, done });
+    });
+
+    // Engine checks
+    const engineSelects = document.querySelectorAll('.check-item select');
+    const engineInputs  = document.querySelectorAll('.check-item input[type=text]');
+
+    // Signatures
+    const supSig = sigState['supervisor'] && !sigState['supervisor'].empty
+      ? sigState['supervisor'].canvas.toDataURL('image/png') : null;
+    const custSig = sigState['customer'] && !sigState['customer'].empty
+      ? sigState['customer'].canvas.toDataURL('image/png') : null;
+
+    return {
+      token_no:           document.getElementById('tokenNo').value.trim() || null,
+      received_at:        document.getElementById('receiveDate').value || null,
+      vehicle_model:      document.getElementById('vehicleModel').value.trim() || null,
+      reg_no:             document.getElementById('regNo').value.trim() || null,
+      odometer_km:        parseFloat(document.getElementById('odometer').value) || null,
+      delivery_time:      document.getElementById('deliveryTime').value || null,
+      job_types:          jobTypes,
+      telephonic_reminder:document.getElementById('telephonic').checked,
+      observations:       observations,
+      supervisor_obs:     document.getElementById('supervisorObs').value.trim() || null,
+      bay_no:             document.getElementById('bayNo').value.trim() || null,
+      technician_name:    document.getElementById('technicianName').value.trim() || null,
+      mechanic_name:      document.getElementById('mechanicName').value.trim() || null,
+      idle_rpm:           engineSelects[0]?.value || null,
+      engine_oil_level:   engineSelects[1]?.value || null,
+      oil_leakage:        engineSelects[2]?.value || null,
+      engine_noise:       engineInputs[0]?.value.trim() || null,
+      electrical_check:   electrical,
+      chassis_check:      chassis,
+      maintenance_done:   maintenance,
+      fuel_level:         document.getElementById('fuelSlider').value + '%',
+      owner_tool:         document.querySelectorAll('.vehicle-return-checks input')[0]?.checked || false,
+      first_aid_kit:      document.querySelectorAll('.vehicle-return-checks input')[1]?.checked || false,
+      service_record:     document.querySelectorAll('.vehicle-return-checks input')[2]?.checked || false,
+      body_damage_notes:  document.querySelector('.body-damage-notes')?.value.trim() || null,
+      parts_cost:         parseFloat(document.getElementById('partsCost').value) || 0,
+      labour_cost:        parseFloat(document.getElementById('labourCost').value) || 0,
+      total_cost:         (parseFloat(document.getElementById('partsCost').value)||0) + (parseFloat(document.getElementById('labourCost').value)||0),
+      additional_notes:   document.getElementById('additionalNotes').value.trim() || null,
+      old_parts_return:   document.getElementById('oldParts').checked,
+      cust_name:          document.getElementById('custName').value.trim() || null,
+      cust_mobile:        document.getElementById('custMobile').value.trim() || null,
+      cust_alt_mobile:    document.getElementById('custAltMobile').value.trim() || null,
+      frame_no:           document.getElementById('frameNo').value.trim() || null,
+      cust_address:       document.getElementById('custAddress').value.trim() || null,
+      engine_no:          document.getElementById('engineNo').value.trim() || null,
+      date_of_sale:       document.getElementById('dateOfSale').value || null,
+      repair_start:       document.getElementById('repairStart').value || null,
+      ready_for_delivery: document.getElementById('readyDelivery').value || null,
+      supervisor_sig:     supSig,
+      customer_sig:       custSig,
+      status:             status,
+    };
+  }
+
+  // ── SAVE DRAFT ──
+  async function saveDraft() {
+    const btn = document.getElementById('saveDraftBtn');
+    btn.disabled = true; btn.textContent = '⏳ Saving…';
+    showToast('Saving draft to Supabase…', 'loading');
+    try {
+      const data = collectFormData('draft');
+      const { error } = await db.from('job_cards').insert([data]);
+      if (error) throw error;
+      showToast('Draft saved successfully!', 'success');
+    } catch (err) {
+      console.error(err);
+      showToast('Error: ' + (err.message || 'Could not save'), 'error');
+    } finally {
+      btn.disabled = false; btn.textContent = '💾 Save Draft';
+    }
+  }
+
+  // ── FINALISE ──
+  async function finaliseCard() {
+    const btn = document.getElementById('finaliseBtn');
+    // Basic validation
+    if (!document.getElementById('custName').value.trim()) {
+      showToast('Please enter Customer Name before finalising.', 'error'); return;
+    }
+    if (!document.getElementById('vehicleModel').value.trim()) {
+      showToast('Please enter Vehicle Model before finalising.', 'error'); return;
+    }
+    btn.disabled = true; btn.textContent = '⏳ Finalising…';
+    showToast('Finalising job card…', 'loading');
+    try {
+      const data = collectFormData('finalised');
+      const { data: result, error } = await db.from('job_cards').insert([data]).select();
+      if (error) throw error;
+      const id = result?.[0]?.id || '—';
+      showToast(`Job Card #${data.token_no || id} finalised & saved! 🎉`, 'success');
+    } catch (err) {
+      console.error(err);
+      showToast('Error: ' + (err.message || 'Could not finalise'), 'error');
+    } finally {
+      btn.disabled = false; btn.textContent = '✅ Finalise Job Card';
+    }
+  }
+
+  // ── CLEAR FORM ──
+  function clearForm() {
+    if (!confirm('Clear all form data?')) return;
+    document.querySelectorAll('input[type="text"], input[type="number"], input[type="tel"], textarea, select').forEach(el => el.value = '');
+    document.querySelectorAll('input[type="checkbox"]').forEach(el => el.checked = false);
+    document.querySelectorAll('.job-type-btn.active').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.elec-item').forEach(el => {
+      el.classList.remove('ok','ng');
+      el.querySelector('.yn-badge').textContent = '–';
+    });
+    document.querySelectorAll('.yn-btn.active').forEach(el => el.classList.remove('active'));
+    document.getElementById('totalCost').textContent = '₹ 0';
+    document.getElementById('fuelSlider').value = 50;
+    document.getElementById('fuelVal').textContent = '50%';
+    ['supervisor','customer'].forEach(clearSig);
+    showToast('Form cleared.', 'info');
+  }
+
+  // ── DIGITAL SIGNATURE ENGINE ──
+  const sigState = {};
+
+  function initSig(id) {
+    const canvas = document.getElementById(id + '-canvas');
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    canvas.width  = rect.width * dpr;
+    canvas.height = 160 * dpr;
+    ctx.scale(dpr, dpr);
+    sigState[id] = { drawing: false, empty: true, ctx, canvas };
+    ctx.strokeStyle = '#1a1f2e';
+    ctx.lineWidth = 2.2;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    function getPos(e) {
+      const r = canvas.getBoundingClientRect();
+      const s = e.touches ? e.touches[0] : e;
+      return { x: s.clientX - r.left, y: s.clientY - r.top };
+    }
+    function start(e) {
+      e.preventDefault();
+      sigState[id].drawing = true;
+      const {x,y} = getPos(e);
+      ctx.beginPath(); ctx.moveTo(x,y);
+    }
+    function move(e) {
+      e.preventDefault();
+      if (!sigState[id].drawing) return;
+      const {x,y} = getPos(e);
+      ctx.lineTo(x,y); ctx.stroke();
+      if (sigState[id].empty) {
+        sigState[id].empty = false;
+        document.getElementById(id+'-placeholder').style.opacity = '0';
+        const ts = new Date().toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+        document.getElementById(id+'-meta').textContent = `Signed digitally on ${ts}`;
+      }
+    }
+    function end() { sigState[id].drawing = false; ctx.beginPath(); }
+
+    canvas.addEventListener('mousedown', start);
+    canvas.addEventListener('mousemove', move);
+    canvas.addEventListener('mouseup', end);
+    canvas.addEventListener('mouseleave', end);
+    canvas.addEventListener('touchstart', start, {passive:false});
+    canvas.addEventListener('touchmove',  move,  {passive:false});
+    canvas.addEventListener('touchend',   end);
+  }
+
+  function clearSig(id) {
+    const s = sigState[id];
+    if (!s) return;
+    s.ctx.clearRect(0,0,s.canvas.width,s.canvas.height);
+    s.empty = true;
+    document.getElementById(id+'-placeholder').style.opacity = '1';
+    document.getElementById(id+'-meta').textContent = '';
+  }
+
+  function saveSig(id) {
+    const s = sigState[id];
+    if (!s || s.empty) { showToast('Please draw a signature first.','error'); return; }
+    const a = document.createElement('a');
+    a.download = id + '_signature.png';
+    a.href = s.canvas.toDataURL('image/png');
+    a.click();
+  }
+
+  window.addEventListener('load', () => {
+    ['supervisor','customer'].forEach(initSig);
+  });
+</script>
+</body>
+</html>
